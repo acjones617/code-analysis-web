@@ -165,8 +165,8 @@
         function filterByName(searchForName, personList) {
             const searchLowerCase = searchForName.toLowerCase();
             return personList.filter((person) => {
-                let firstNameLowerCase = person.firstName.toLowerCase();
-                let lastNameLowerCase = person.lastName.toLowerCase();
+                let firstNameLowerCase = getFirstName(person).toLowerCase();
+                let lastNameLowerCase = getLastName(person).toLowerCase();
                 return firstNameLowerCase.startsWith(searchLowerCase) ||
                     lastNameLowerCase.startsWith(searchLowerCase) ||
                     (firstNameLowerCase + ' ' + lastNameLowerCase).startsWith(searchLowerCase);
@@ -190,7 +190,7 @@
          *    > [{ name: 'Jon' }, { name: 'Kevin' }, { name: 'Sam' }]
          *
          */
-        function sortObjListByProp(prop) {
+        function sortObjListByTransform(transform) {
             let sortedObj;
             let previousObjList;
             return function(objList) {
@@ -201,11 +201,11 @@
                 previousObjList = objList;
                 // Make a copy & don't mutate the passed in list
                 return sortedObj = objList.slice().sort((a, b) => {
-                    if (a[prop] < b[prop]) {
+                    if (transform(a) < transform(b)) {
                         return -1;
                     }
 
-                    if (a[prop] > b[prop]) {
+                    if (transform(a) > transform(b)) {
                         return 1;
                     }
 
@@ -214,9 +214,9 @@
             };
         }
 
-        const sortByFirstName = sortObjListByProp('firstName');
+        const sortByFirstName = sortObjListByTransform(getFirstName);
 
-        const sortByLastName = sortObjListByProp('lastName');
+        const sortByLastName = sortObjListByTransform(getLastName);
 
 
         /*==================================================
