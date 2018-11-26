@@ -236,7 +236,7 @@
             src: props.src
         });
 
-        const ListRow = (props) => React.DOM.tr({ key: `${props.person.firstName} ${props.person.lastName}` }, [
+        const ListRow = (props) => React.DOM.tr({ key: `${getFirstName(props.person)} ${getLastName(props.person)}` }, [
             React.DOM.td({ key: 'thumb' }, React.createElement(Thumbnail, { src: getImageUrl(props.person) })),
             React.DOM.td({ key: 'first' }, null, getFirstName(props.person)),
             React.DOM.td({ key: 'last' }, null, getLastName(props.person)),
