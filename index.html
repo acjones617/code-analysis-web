@@ -102,18 +102,16 @@
          *    ]
          */
         function getPersonList() {
-            return new Promise((resolve, reject) => {
-                fetch('https://willowtreeapps.com/api/v1.0/profiles')
+            return fetch('https://willowtreeapps.com/api/v1.0/profiles')
                 .then(response => {
                     if (response.status !== 200) {
-                        reject(new Error("Error!"));
+                        return Promise.reject(new Error("Error!"));
                     }
-
-                    response.json().then(imageList => {
-                        resolve(imageList);
-                    });
+                    return response.json();
+                })
+                .then(imageList => {
+                    return Promise.resolve(imageList);
                 });
-            });
         }
 
 
@@ -258,16 +256,26 @@
             getInitialState() {
                 return {
                     personList: [],
-                    visiblePersonList: []
+                    visiblePersonList: [],
+                    error: null
                 };
             },
 
             componentDidMount() {
-                getPersonList().then((personList) =>
+                this._getAndSetPersonList();
+            },
+
+            _getAndSetPersonList() {
+                getPersonList().then(personList => {
                     this.setState({
                         personList,
-                        visiblePersonList: personList
-                    }));
+                        visiblePersonList: personList,
+                        error: null
+                    });
+                })
+                .catch(error => {
+                    this.setState({ error });
+                });
             },
 
             _shuffleList() {
@@ -295,15 +303,24 @@
             },
 
             render() {
-                const { visiblePersonList } = this.state;
+                let content;
+                if (this.state.error) {
+                    content = [
+                        React.DOM.p({key: 'error'}, null, 'Technical difficulties. Try again later.'),
+                        React.DOM.button({ key: 'retry', onClick: this._getAndSetPersonList }, null, 'Retry')
+                    ];
+                } else {
+                    const { visiblePersonList } = this.state;
+                    content = [
+                        React.createElement(Search, { key: 'search', onChange: this._onSearch }),
+                        React.DOM.button({ key: 'shuffle', onClick: this._shuffleList }, null, 'Shuffle'),
+                        React.DOM.button({ key: 'sort-first', onClick: this._sortByFirst }, null, 'Sort (First Name)'),
+                        React.DOM.button({ key: 'sort-last', onClick: this._sortByLast }, null, 'Sort (Last Name)'),
+                        React.createElement(ListContainer, { key: 'list', personList: visiblePersonList })
+                    ];
+                }
 
-                return React.DOM.div({ className: 'app-container' }, [
-                    React.createElement(Search, { key: 'search', onChange: this._onSearch }),
-                    React.DOM.button({ key: 'shuffle', onClick: this._shuffleList }, null, 'Shuffle'),
-                    React.DOM.button({ key: 'sort-first', onClick: this._sortByFirst }, null, 'Sort (First Name)'),
-                    React.DOM.button({ key: 'sort-last', onClick: this._sortByLast }, null, 'Sort (Last Name)'),
-                    React.createElement(ListContainer, { key: 'list', personList: visiblePersonList })
-                ]);
+                return React.DOM.div({ className: 'app-container' }, content);
             }
         });
 
