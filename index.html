@@ -161,10 +161,17 @@
         /**
          * Remove any people that do not have the name we are
          * searching for.
+         * Searches are not case sensitive and only apply to the beginning
+         * of a first name, last name, or whole name.
          */
         function filterByName(searchForName, personList) {
+            const searchLowerCase = searchForName.toLowerCase();
             return personList.filter((person) => {
-                return person.firstName === searchForName || person.lastName === searchForName;
+                let firstNameLowerCase = person.firstName.toLowerCase();
+                let lastNameLowerCase = person.lastName.toLowerCase();
+                return firstNameLowerCase.startsWith(searchLowerCase) ||
+                    lastNameLowerCase.startsWith(searchLowerCase) ||
+                    (firstNameLowerCase + ' ' + lastNameLowerCase).startsWith(searchLowerCase);
             });
         }
 
@@ -222,6 +229,7 @@
 
         const Search = (props) => React.DOM.input({
             type: 'input',
+            placeholder: 'Search',
             onChange: props.onChange
         });
 
