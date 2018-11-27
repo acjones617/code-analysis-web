@@ -108,9 +108,6 @@
                         return Promise.reject(new Error("Error!"));
                     }
                     return response.json();
-                })
-                .then(imageList => {
-                    return Promise.resolve(imageList);
                 });
         }
 
